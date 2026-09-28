@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="smsspamcollection">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/week13/smsspamcollection.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
