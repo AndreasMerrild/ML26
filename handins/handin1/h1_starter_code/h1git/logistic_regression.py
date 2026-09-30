@@ -76,7 +76,24 @@ class LogisticRegressionClassifier():
         """
         if w is None: w = np.zeros(X.shape[1])
         history = []        
-        ### YOUR CODE HERE 
+        ### YOUR CODE HERE
+        for _ in range(epochs):
+            permutation = np.random.permutation(X.shape[0])
+            X_shuffled = X[permutation]
+            y_shuffled = y[permutation]
+
+        for start in range(0, X.shape[0], batch_size):
+            end = start + batch_size
+
+            X_batch = X_shuffled[start:end]
+            y_batch = y_shuffled[start:end]
+
+            _, grad = self.cost_grad(X_batch, y_batch, w)
+            w -= lr * grad
+
+        cost, _ = self.cost_grad(X, y, w)
+        history.append(cost)
+
         ### END CODE
         self.w = w
         self.history = history
@@ -95,6 +112,7 @@ class LogisticRegressionClassifier():
         """
         out = np.ones(X.shape[0])
         ### YOUR CODE HERE
+        out = np.sign(X @ self.w)
         ### END CODE
         return out
     
@@ -111,6 +129,7 @@ class LogisticRegressionClassifier():
         """
         s = 0
         ### YOUR CODE HERE
+        s = np.mean(self.predict(X) == y)
         ### END CODE
         return s
         
@@ -123,6 +142,20 @@ def test_logistic():
     target = np.array([ 0.5, 0.73105858, 0.88079708, 0.95257413])
     assert np.allclose(lg, target), 'Logistic Mismatch Expected {0} - Got {1}'.format(target, lg)
     print('Test Success!')
+
+def test_logistic2():
+    print('*'*5, 'Testing logistic function 2')
+    X = np.array([[1.0], [1.0], [2.0]])
+    y = np.array([1, -1, 1])
+    w = np.array([100.0])
+
+    lr = LogisticRegressionClassifier()
+    cost, grad = lr.cost_grad(X, y, w)
+
+    print(cost)
+    print(grad)
+    print('Test Success!')
+
 
     
 def test_cost():
@@ -155,5 +188,6 @@ if __name__ == '__main__':
     test_logistic()
     test_cost()
     test_grad()
+    test_logistic2()
     
     
