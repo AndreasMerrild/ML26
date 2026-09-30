@@ -42,11 +42,18 @@ class LogisticRegressionClassifier():
            cost: scalar: the average negative log likelihood for logistic regression with data X, y 
            grad: np.array shape(d, ) gradient of the average negative log likelihood at w 
         """
-        grad = np.zeros(w.shape)
         ### YOUR CODE HERE
 
-        cost = np.mean(np.log(1 + np.exp(-y * (X @ w))))
-        grad = -np.mean((y * X.T) / (1 + np.exp(y * (X @ w))), axis=1)
+        margin = y * (X @ w)
+        cost = np.mean(np.logaddexp(0, -margin))
+
+        factor = np.empty_like(margin, dtype=float)
+        positive = margin >= 0
+        factor[positive] = np.exp(-margin[positive]) / (
+            1 + np.exp(-margin[positive])
+        )
+        factor[~positive] = 1 / (1 + np.exp(margin[~positive]))
+        grad = -np.mean(y[:, None] * X * factor[:, None], axis=0)
 
         ### END CODE
         assert grad.shape == w.shape
@@ -82,17 +89,17 @@ class LogisticRegressionClassifier():
             X_shuffled = X[permutation]
             y_shuffled = y[permutation]
 
-        for start in range(0, X.shape[0], batch_size):
-            end = start + batch_size
+            for start in range(0, X.shape[0], batch_size):
+                end = start + batch_size
 
-            X_batch = X_shuffled[start:end]
-            y_batch = y_shuffled[start:end]
+                X_batch = X_shuffled[start:end]
+                y_batch = y_shuffled[start:end]
 
-            _, grad = self.cost_grad(X_batch, y_batch, w)
-            w -= lr * grad
+                _, grad = self.cost_grad(X_batch, y_batch, w)
+                w -= lr * grad
 
-        cost, _ = self.cost_grad(X, y, w)
-        history.append(cost)
+            cost, _ = self.cost_grad(X, y, w)
+            history.append(cost)
 
         ### END CODE
         self.w = w
