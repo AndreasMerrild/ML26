@@ -100,7 +100,6 @@ class LogisticRegressionClassifier():
 
             cost, _ = self.cost_grad(X, y, w)
             history.append(cost)
-
         ### END CODE
         self.w = w
         self.history = history
