@@ -24,6 +24,9 @@ def softmax(X):
     """
     res = np.zeros(X.shape)
     ### YOUR CODE HERE
+    max_X = np.max(X, axis=1, keepdims=True)
+    log_sum_exp = np.log(np.sum(np.exp(X - max_X), axis=1, keepdims=True)) + max_X
+    res = np.exp(X - log_sum_exp)
     ### END CODE
     return res
 
@@ -63,6 +66,11 @@ class SoftmaxClassifier():
         grad = np.zeros(W.shape)*np.nan
         Yk = one_in_k_encoding(y, self.num_classes) # may help - otherwise you may remove it
         ### YOUR CODE HERE
+        n = X.shape[0]
+        scores = X @ W
+        probs = softmax(scores)
+        cost = -np.mean(np.sum(Yk * np.log(probs), axis=1))
+        grad = - (X.T @ (Yk - probs)) / n
         ### END CODE
         return cost, grad
 
@@ -87,6 +95,21 @@ class SoftmaxClassifier():
         if W is None: W = np.zeros((X.shape[1], self.num_classes))
         history = []
         ### YOUR CODE HERE
+        n = X.shape[0]
+        batch_size = min(batch_size, n)
+
+        for _ in range(epochs):
+            indices = np.random.permutation(n)
+
+            for start in range(0, n, batch_size):
+                batch_indices = indices[start:start + batch_size]
+                _, grad = self.cost_grad(
+                    X[batch_indices], Y[batch_indices], W
+                )
+                W -= lr * grad
+
+            epoch_cost, _ = self.cost_grad(X, Y, W)
+            history.append(epoch_cost)
         ### END CODE
         self.W = W
         self.history = history
@@ -103,6 +126,7 @@ class SoftmaxClassifier():
         """
         out = 0
         ### YOUR CODE HERE
+        out = np.mean(self.predict(X) == Y)
         ### END CODE
         return out
 
@@ -116,6 +140,8 @@ class SoftmaxClassifier():
         """
         out = None
         ### YOUR CODE HERE   
+        scores = X @ self.W
+        out = np.argmax(scores, axis=1)
         ### END CODE
         return out
 
