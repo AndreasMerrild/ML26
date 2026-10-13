@@ -100,7 +100,7 @@ class NetClassifier():
             params = self.params
         pred = None
         ### YOUR CODE HERE
-        res = X @ 
+        pred = X @ params
         ### END CODE
         return pred
      
@@ -119,6 +119,7 @@ class NetClassifier():
             params = self.params
         acc = None
         ### YOUR CODE HERE
+        acc = np.mean(self.predict(X) == y)
         ### END CODE
         return acc
     
