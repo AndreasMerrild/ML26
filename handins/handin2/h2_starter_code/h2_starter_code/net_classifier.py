@@ -38,6 +38,9 @@ def softmax(X):
     """
     res = np.zeros(X.shape)
     ### YOUR CODE HERE
+    max_X = np.max(X, axis=1, keepdims=True)
+    log_sum_exp = np.log(np.sum(np.exp(X - max_X), axis=1, keepdims=True)) + max_X
+    res = np.exp(X - log_sum_exp)
     ### END CODE
     return res
 
@@ -51,6 +54,7 @@ def relu(x):
         Beware of np.max and look at np.maximum
     """
     ### YOUR CODE HERE
+    res = np.maximum(x, 0)
     ### END CODE
     return res
 
@@ -96,6 +100,7 @@ class NetClassifier():
             params = self.params
         pred = None
         ### YOUR CODE HERE
+        res = X @ 
         ### END CODE
         return pred
      
