@@ -159,6 +159,12 @@ class NetClassifier():
         labels = one_in_k_encoding(y, W2.shape[1]) # shape n x k
                         
         ### YOUR CODE HERE - FORWARD PASS - compute cost with weight decay and store relevant values for backprop
+        z1 = X @ W1 + b1
+        a1 = relu(z1)
+        z2 = a1 @ W2 + b2
+        p = softmax(z2)
+        "cost = mean over rows of (−Σ labels · ln p) + c·(ΣW1² + ΣW2²). labels is already built for you in the starter code. Biases are not in the penalty."
+
         ### END CODE
         
         ### YOUR CODE HERE - BACKWARDS PASS - compute derivatives of all weights and bias, store them in d_w1, d_w2, d_b1, d_b2
