@@ -168,6 +168,11 @@ class NetClassifier():
         ### END CODE
         
         ### YOUR CODE HERE - BACKWARDS PASS - compute derivatives of all weights and bias, store them in d_w1, d_w2, d_b1, d_b2
+        d_w1 = np.array.shape(W1.shape)
+        d_w2 = np.array.shape(W2.shape)
+        d_b1 = np.array.shape(b1.shape)
+        d_b2 = np.array.shape(b2.shape)
+
         ### END CODE
         # the return signature
         return cost, {'d_w1': d_w1, 'd_w2': d_w2, 'd_b1': d_b1, 'd_b2': d_b2}
