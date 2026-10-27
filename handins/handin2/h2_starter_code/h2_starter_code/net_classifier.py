@@ -164,18 +164,13 @@ class NetClassifier():
         z2 = a1 @ W2 + b2
         p = softmax(z2)
         "cost = mean over rows of (−Σ labels · ln p) + c·(ΣW1² + ΣW2²). labels is already built for you in the starter code. Biases are not in the penalty."
-        nll = np.mean(-np.sum(labels * np.log(p)))
+        nll = np.mean(-np.sum(labels * np.log(p),axis=1))
         cost = nll + c * (np.sum(W1**2) + np.sum(W2**2))
 
         ### END CODE
         
         ### YOUR CODE HERE - BACKWARDS PASS - compute derivatives of all weights and bias, store them in d_w1, d_w2, d_b1, d_b2
-        d_w1 = np.array.shape(W1.shape)
-        d_w2 = np.array.shape(W2.shape)
-        d_b1 = np.array.shape(b1.shape)
-        d_b2 = np.array.shape(b2.shape)
-
-        d_z2 = np.mean(p - labels)/X.shape[0]
+        d_z2 = (p - labels) / X.shape[0]
         d_w2 = a1.T @ d_z2 + 2 * c * W2
         d_b2 = np.sum(d_z2, axis=0, keepdims=True)
 
@@ -224,24 +219,76 @@ class NetClassifier():
 
 
         ### YOUR CODE HERE
-        cost, W1, W2, b_1, b_2 = self.cost_grad(X_train,y_train,init_params, c)
+        n_samples = X_train.shape[0]
 
+        for epoch in range(epochs):
 
-        n = X.shape[0]
-        batch_size = min(batch_size, n)
+            indices = np.random.permutation(n_samples)
 
-        for _ in range(epochs):
-            indices = np.random.permutation(n)
+            X_shuffled = X_train[indices]
+            y_shuffled = y_train[indices]
 
-            for start in range(0, n, batch_size):
-                batch_indices = indices[start:start + batch_size]
-                _, grad = self.cost_grad(
-                    X[batch_indices], Y[batch_indices], W1
+            for start in range(0, n_samples, batch_size):
+
+                end = start + batch_size
+
+                X_batch = X_shuffled[start:end]
+                y_batch = y_shuffled[start:end]
+
+                params = {
+                    'W1': W1,
+                    'b1': b1,
+                    'W2': W2,
+                    'b2': b2,
+                }
+
+                loss, grads = self.cost_grad(
+                    X_batch, y_batch, params, c
                 )
-                W1 -= lr * grad
 
-            epoch_cost, _ = self.cost_grad(X, Y, W1)
-            hist.append(epoch_cost)
+                W1 -= lr * grads['d_w1']
+                b1 -= lr * grads['d_b1']
+                W2 -= lr * grads['d_w2']
+                b2 -= lr * grads['d_b2']
+
+            params = {
+                'W1': W1,
+                'b1': b1,
+                'W2': W2,
+                'b2': b2,
+            }
+
+
+            train_loss, _ = self.cost_grad(
+                X_train, y_train, params, c
+            )
+            val_loss, _ = self.cost_grad(
+                X_val, y_val, params, c
+            )
+
+
+        train_hidden = relu(X_train @ W1 + b1)
+        train_scores = train_hidden @ W2 + b2
+        train_pred = np.argmax(train_scores, axis=1)
+
+        val_hidden = relu(X_val @ W1 + b1)
+        val_scores = val_hidden @ W2 + b2
+        val_pred = np.argmax(val_scores, axis=1)
+
+        train_acc = np.mean(
+            train_pred == y_train.reshape(-1)
+        )
+        val_acc = np.mean(
+            val_pred == y_val.reshape(-1)
+        )
+
+        hist['train_loss'].append(train_loss)
+        hist['train_acc'].append(train_acc)
+        hist['val_loss'].append(val_loss)
+        hist['val_acc'].append(val_acc)
+
+        self.params = params
+
 
         ### END CODE
         # hist dict should look like this with something different than none
