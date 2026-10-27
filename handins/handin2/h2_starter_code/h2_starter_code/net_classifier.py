@@ -98,9 +98,9 @@ class NetClassifier():
         """
         if params is None:
             params = self.params
-        pred = None
         ### YOUR CODE HERE
-        pred = X @ params
+        scores = relu(X @ params['W1'] + params['b1']) @ params['W2'] + params['b2']
+        pred = np.argmax(scores, axis=1)
         ### END CODE
         return pred
      
@@ -117,9 +117,9 @@ class NetClassifier():
         """
         if params is None:
             params = self.params
-        acc = None
+        acc= None
         ### YOUR CODE HERE
-        acc = np.mean(self.predict(X) == y)
+        acc = np.mean(self.predict(X, params) == y.reshape(-1))
         ### END CODE
         return acc
     
@@ -211,10 +211,10 @@ class NetClassifier():
         W2 = init_params['W2']
         b2 = init_params['b2']
         hist = {
-            'train_loss': None,
-            'train_acc': None,
-            'val_loss': None,
-            'val_acc': None,
+            'train_loss': [],
+            'train_acc': [],
+            'val_loss': [],
+            'val_acc': [],
         }
 
 
@@ -267,20 +267,20 @@ class NetClassifier():
             )
 
 
-        train_hidden = relu(X_train @ W1 + b1)
-        train_scores = train_hidden @ W2 + b2
-        train_pred = np.argmax(train_scores, axis=1)
+            train_hidden = relu(X_train @ W1 + b1)
+            train_scores = train_hidden @ W2 + b2
+            train_pred = np.argmax(train_scores, axis=1)
 
-        val_hidden = relu(X_val @ W1 + b1)
-        val_scores = val_hidden @ W2 + b2
-        val_pred = np.argmax(val_scores, axis=1)
+            val_hidden = relu(X_val @ W1 + b1)
+            val_scores = val_hidden @ W2 + b2
+            val_pred = np.argmax(val_scores, axis=1)
 
-        train_acc = np.mean(
-            train_pred == y_train.reshape(-1)
-        )
-        val_acc = np.mean(
-            val_pred == y_val.reshape(-1)
-        )
+            train_acc = np.mean(
+                train_pred == y_train.reshape(-1)
+            )
+            val_acc = np.mean(
+                val_pred == y_val.reshape(-1)
+            )
 
         hist['train_loss'].append(train_loss)
         hist['train_acc'].append(train_acc)
