@@ -164,6 +164,8 @@ class NetClassifier():
         z2 = a1 @ W2 + b2
         p = softmax(z2)
         "cost = mean over rows of (−Σ labels · ln p) + c·(ΣW1² + ΣW2²). labels is already built for you in the starter code. Biases are not in the penalty."
+        nll = np.mean(-np.sum(labels * np.log(p)))
+        cost = nll + c * (np.sum(W1**2) + np.sum(W2**2))
 
         ### END CODE
         
@@ -172,6 +174,16 @@ class NetClassifier():
         d_w2 = np.array.shape(W2.shape)
         d_b1 = np.array.shape(b1.shape)
         d_b2 = np.array.shape(b2.shape)
+
+        d_z2 = np.mean(p - labels)/X.shape[0]
+        d_w2 = a1.T @ d_z2 + 2 * c * W2
+        d_b2 = np.sum(d_z2, axis=0, keepdims=True)
+
+        d_a1 = d_z2 @ W2.T
+        d_z1 = d_a1 * (z1 > 0)
+
+        d_w1 = X.T @ d_z1 + 2 * c * W1
+        d_b1 = np.sum(d_z1, axis=0, keepdims=True)
 
         ### END CODE
         # the return signature
@@ -207,11 +219,30 @@ class NetClassifier():
             'train_loss': None,
             'train_acc': None,
             'val_loss': None,
-            'val_acc': None, 
+            'val_acc': None,
         }
 
-        
+
         ### YOUR CODE HERE
+        cost, W1, W2, b_1, b_2 = self.cost_grad(X_train,y_train,init_params, c)
+
+
+        n = X.shape[0]
+        batch_size = min(batch_size, n)
+
+        for _ in range(epochs):
+            indices = np.random.permutation(n)
+
+            for start in range(0, n, batch_size):
+                batch_indices = indices[start:start + batch_size]
+                _, grad = self.cost_grad(
+                    X[batch_indices], Y[batch_indices], W1
+                )
+                W1 -= lr * grad
+
+            epoch_cost, _ = self.cost_grad(X, Y, W1)
+            hist.append(epoch_cost)
+
         ### END CODE
         # hist dict should look like this with something different than none
         #hist = {'train_loss': None, 'train_acc': None, 'val_loss': None, 'val_acc': None}
