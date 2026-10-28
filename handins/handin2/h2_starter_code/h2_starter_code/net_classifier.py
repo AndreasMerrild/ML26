@@ -282,10 +282,10 @@ class NetClassifier():
                 val_pred == y_val.reshape(-1)
             )
 
-        hist['train_loss'].append(train_loss)
-        hist['train_acc'].append(train_acc)
-        hist['val_loss'].append(val_loss)
-        hist['val_acc'].append(val_acc)
+            hist['train_loss'].append(train_loss)
+            hist['train_acc'].append(train_acc)
+            hist['val_loss'].append(val_loss)
+            hist['val_acc'].append(val_acc)
 
         self.params = params
 
