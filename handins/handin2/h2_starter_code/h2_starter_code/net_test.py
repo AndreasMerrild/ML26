@@ -20,6 +20,7 @@ def digits_test(hidden_size=256, epochs=30, batch_size=32, lr=0.1, c=1e-4):
     digits_train, digits_val, labels_train, labels_val = train_test_split(digits, labels, test_size=0.15, random_state=42)
     init_params = get_init_params(digits.shape[1], hidden_size, 10)    
     hist = net.fit(digits_train, labels_train, digits_val, labels_val, init_params, batch_size=batch_size, epochs=epochs, lr=lr, c=c)
+    print(f"History: {hist}")
     print('in sample accuracy', net.score(digits, labels))
     test_digits, test_labels = load_digits_test_data()
     print('test sample accuracy', net.score(test_digits, test_labels))
