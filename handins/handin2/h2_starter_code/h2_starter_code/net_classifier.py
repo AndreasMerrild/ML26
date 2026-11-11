@@ -287,7 +287,30 @@ class NetClassifier():
             hist['val_loss'].append(val_loss)
             hist['val_acc'].append(val_acc)
 
-        self.params = params
+            best_val_acc = -np.inf
+            best_params = None
+
+            for epoch in range(epochs):
+                # Mini-batch updates...
+
+                params = {
+                    'W1': W1,
+                    'b1': b1,
+                    'W2': W2,
+                    'b2': b2,
+                }
+
+                val_acc = self.score(X_val, y_val, params)
+
+                if val_acc > best_val_acc:
+                    best_val_acc = val_acc
+                    best_params = {
+                        key: value.copy()
+                        for key, value in params.items()
+                    }
+
+            # Return the parameters from the best validation epoch
+            self.params = best_params
 
 
         ### END CODE
